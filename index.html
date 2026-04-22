@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc nghiệm An toàn thông tin - 250 Câu (Có Giải Thích)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option-btn {
+            padding: 12px 15px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            background-color: #e2e6ea;
+        }
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            pointer-events: none;
+        }
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .feedback {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 16px;
+            min-height: 24px;
+        }
+        .explanation {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f0fe;
+            border-left: 4px solid #1a73e8;
+            border-radius: 0 8px 8px 0;
+            font-size: 15px;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+        .next-btn {
+            display: none;
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .next-btn:hover {
+            background-color: #1557b0;
+        }
+        #progress {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #666;
+            font-weight: bold;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <h1>Luyện thi An toàn thông tin</h1>
+    <div style="text-align: center;">
+        <span class="status-badge">Đã xác minh đáp án & Tích hợp giải thích</span>
+    </div>
+    <div id="progress">Đang tải 250 câu hỏi...</div>
+    <div style="text-align: center; margin-bottom: 15px;">
+        <label for="start-q">Chuyển đến câu: </label>
+        <input type="number" id="start-q" min="1" max="250" value="1" style="width: 60px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+        <button onclick="jumpToQuestion()" style="padding: 6px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Đi</button>
+    </div>
+    <div class="question" id="question">Vui lòng đợi...</div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="explanation" id="explanation"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()">Câu tiếp theo ❯</button>
+</div>
+
+<script>
+    // Toàn bộ 250 câu hỏi text thô
+    const rawText = `Chương 1 Tổng quan
+PHẦN 1: KIẾN THỨC CƠ BẢN
+Câu 1: Ba thuộc tính cốt lõi (mô hình CIA) mà An toàn thông tin tập trung bảo vệ là gì?
+A. Tính bí mật, tính xác thực và tính sẵn dùng.
+B. Tính bí mật, tính toàn vẹn và tính sẵn dùng.
+C. Tính toàn vẹn, tính không chối bỏ và tính bí mật.
+D. Tính sẵn dùng, tính cá nhân và tính toàn vẹn.
+Câu 2: Biện pháp nào sau đây thường được sử dụng để đảm bảo tính bí mật (Confidentiality) cho dữ liệu?
+A. Sử dụng hàm băm để kiểm tra thay đổi.
+B. Thiết lập các bản sao lưu dự phòng.
+C. Mã hóa đường hầm (VPN) hoặc mã hóa gói tin.
+D. Sử dụng chữ ký số để xác thực nguồn gốc.
+Câu 3: Tính sẵn dùng (Availability) của một hệ thống thường được đo lường qua:
+A. Số lượng mật mã được sử dụng.
+B. Thời gian hoạt động (Uptime) và thời gian ngừng (Downtime).
+C. Tốc độ xử lý của CPU.
+D. Số lượng người truy cập cùng lúc.
+Câu 4: Thành phần "An ninh mạng" trong ATTT tập trung vào công cụ nào?
+A. Bảo vệ hệ điều hành và sao lưu dự phòng.
+B. Quản lý rủi ro và đào tạo ý thức người dùng.
+C. Tường lửa (Firewall), Proxy và hệ thống phát hiện xâm nhập (IDS).
+D. Xây dựng các chuẩn và chính sách pháp luật.
+Câu 5: Kiểm tra các số nguyên tố lớn hoặc tính toán lưới thuộc nhóm bài toán nào?
+A. Bài toán ứng dụng.
+B. Bài toán lý thuyết và tính toán liên quan.
+C. Bài toán quản lý rủi ro.
+D. Bài toán chính sách pháp luật.
+Câu 6: Hạ tầng khóa công khai (PKI) và trung tâm cấp chứng chỉ số (CA) được xếp vào loại:
+A. Bài toán ứng dụng để xây dựng cơ sở hạ tầng.
+B. Bài toán nén thông tin.
+C. Bài toán đạo đức máy tính.
+D. Bài toán kiểm tra tính toàn vẹn.
+Câu 7: Đạo luật PATRIOT Act và CFA Act 1986 là luật của quốc gia nào?
+A. Liên minh Châu Âu.
+B. Việt Nam.
+C. Hoa Kỳ (Mỹ).
+D. Hội đồng Châu Âu.
+Câu 8: Văn bản luật nào tại Việt Nam điều chỉnh trực tiếp các hoạt động về an toàn thông tin?
+A. Luật Hình sự.
+B. Luật An toàn thông tin mạng.
+C. Luật Dân sự.
+D. Luật Doanh nghiệp.
+Câu 9: Bộ 10 quy tắc ứng xử của Viện đạo đức máy tính (Mỹ) nhấn mạnh điều gì?
+A. Sử dụng phần mềm bẻ khóa để tiết kiệm chi phí.
+B. Không dùng máy tính gây hại cho người khác và không trộm cắp thông tin.
+C. Tự do truy cập tài nguyên máy tính nếu không có mật khẩu.
+D. Người dùng không cần chịu trách nhiệm về hậu quả xã hội.
+Câu 10: Kỹ thuật "Giấu tin" (Steganography) thường được ứng dụng để:
+A. Tăng tốc độ truyền tải dữ liệu.
+B. Giấu thông tin bản quyền hoặc kiểm tra tính toàn vẹn (thủy ký số).
+C. Chống tấn công từ chối dịch vụ (DoS).
+D. Mã hóa dữ liệu sang dạng văn bản thuần.
+Câu 11: Thuật ngữ nào đồng nghĩa với việc bảo vệ dữ liệu để không bị hỏng hóc hoặc mất mát?
+A. Đảm bảo tính bí mật.
+B. An toàn thông tin.
+C. An ninh mạng.
+D. Mã hóa dữ liệu.
+Câu 12: Thành phần "Quản lý an toàn thông tin" KHÔNG bao gồm nội dung nào?
+A. Xây dựng các chuẩn và chính sách ATTT.
+B. Đào tạo nâng cao ý thức cho người dùng.
+C. Cài đặt và cấu hình tường lửa (Firewall).
+D. Quản lý rủi ro.
+Câu 13: "Chứng minh không tiết lộ thông tin" thuộc phân loại bài toán nào?
+A. Bài toán ứng dụng hạ tầng.
+B. Bài toán lý thuyết và tính toán liên quan.
+C. Bài toán kinh tế - xã hội.
+D. Bài toán nén thông tin.
+Câu 14: Kỹ thuật mã hóa Huffman được xếp vào nhóm công cụ nào?
+A. Mật mã học.
+B. Nén thông tin.
+C. Giấu tin.
+D. Mạng riêng ảo (VPN).
+Câu 15: Đạo luật HIPAA quốc tế tập trung vào lĩnh vực nào?
+A. Chống tội phạm máy tính xâm nhập.
+B. Bảo vệ bản quyền kỹ thuật số.
+C. Bảo vệ quyền riêng tư (đặc biệt trong y tế).
+D. Chống gián điệp mạng.
+Câu 16: Đạo luật bản quyền kỹ thuật số DMCA thuộc nhóm luật nào?
+A. Luật tội phạm máy tính.
+B. Luật bảo vệ quyền riêng tư.
+C. Luật bản quyền và hiệp ước quốc tế.
+D. Luật Công nghệ thông tin 2006.
+Câu 17: Một Chính sách ATTT hiệu quả bắt buộc phải có yếu tố nào?
+A. Càng dài và chi tiết kỹ thuật càng tốt.
+B. Phải có sự cam kết thực hiện từ toàn bộ nhân viên.
+C. Chỉ áp dụng cho bộ phận IT.
+D. Không được phổ biến rộng rãi.
+Câu 18: Bộ 10 quy tắc ứng xử đạo đức máy tính (Mỹ) được đưa ra bởi tổ chức nào?
+A. Hiệp hội ATTT Việt Nam (VNISA).
+B. Viện đạo đức máy tính (Computer Ethics Institute).
+C. Hội đồng Châu Âu.
+D. Tổ chức ACM.
+Câu 19: Bài toán ứng dụng nào phục vụ trực tiếp cho hoạt động "Kinh tế - Xã hội"?
+A. Xây dựng hệ thống cấp chứng chỉ số CA.
+B. Đấu thầu và giao dịch chứng khoán từ xa.
+C. Lưu vết và thu hồi thiết bị trái phép.
+D. Tính toán song song.
+Câu 20: Luật Công nghệ thông tin của Việt Nam được ban hành vào năm nào?
+A. Năm 2000.
+B. Năm 2015.
+C. Năm 2006.
+D. Năm 1986.
+Câu 1: Công thức nào sau đây mô tả đúng về một cuộc tấn công?
+A. Tấn công = Điểm yếu + Mối đe dọa.
+B. Tấn công = Lỗ hổng + Điểm yếu.
+C. Tấn công = Mối đe dọa + Lỗ hổng.
+D. Tấn công = Mối đe dọa + Phần mềm độc hại.
+Câu 2: Đâu là một ví dụ về mối đe dọa từ môi trường tự nhiên?
+A. Gián điệp công nghệ.
+B. Tai họa thiên nhiên.
+C. Khủng bố phá hoại.
+D. Phần mềm độc hại.
+Câu 3: Theo hình thức thực hiện, tấn công được chia thành:
+A. Tấn công bên trong và bên ngoài.
+B. Tấn công chủ động và tấn công thụ động.
+C. Giả mạo và chặn bắt.
+D. Ngắt quãng và sửa đổi.
+Câu 4: Loại tấn công nào liên quan đến việc nghe lén trên đường truyền để sử dụng thông tin trái phép?
+A. Giả mạo.
+B. Chặn bắt.
+C. Ngắt quãng.
+D. Sửa đổi.
+Câu 5: Mục đích của cuộc tấn công "Ngắt quãng" (Interruption) là gì?
+A. Thay đổi nội dung file.
+B. Đánh lừa người dùng thông thường.
+C. Làm chậm đường truyền hoặc quá tải hệ thống để ngăn cản truy cập dịch vụ.
+D. Nghe lén thông tin bí mật.
+Câu 6: Lỗ hổng nào sau đây thuộc về Hệ điều hành?
+A. Lỗ hổng xử lý đầu vào/đầu ra.
+B. Lỗ hổng quản lý phiên (Session).
+C. Lỗ hổng xác thực và quản lý định danh (mật khẩu, tài khoản lỗi thời).
+D. Lỗ hổng thư viện bên thứ ba.
+Câu 7: Việc "Sai cấu hình quyền file, thư mục, registry" được xếp vào loại lỗ hổng nào?
+A. Lỗ hổng Kernel.
+B. Lỗ hổng phân quyền và kiểm soát truy cập.
+C. Lỗ hổng quản lý bộ nhớ.
+D. Lỗ hổng cập nhật.
+Câu 8: Đâu là một dạng lỗ hổng phổ biến trong các Ứng dụng?
+A. Lỗ hổng driver và hệ thống lõi.
+B. Lỗ hổng xử lý đầu vào/đầu ra.
+C. Lỗ hổng network stack.
+D. Lỗ hổng cấu hình hệ điều hành.
+Câu 9: "Hardcoded secrets" (lưu thông tin bí mật trực tiếp trong mã nguồn) thuộc nhóm lỗ hổng nào?
+A. Lỗ hổng xác thực.
+B. Lỗ hổng mã hóa và bảo vệ dữ liệu.
+C. Lỗ hổng cấu hình.
+D. Lỗ hổng thư viện.
+Câu 10: Lỗ hổng nào liên quan đến việc sử dụng các thành phần phần mềm cũ, không được cập nhật?
+A. Lỗ hổng xử lý file.
+B. Lỗ hổng quản lý phiên.
+C. Lỗ hổng thư viện và bên thứ ba.
+D. Lỗ hổng phân quyền.
+Câu 11: Nguyên tắc nào yêu cầu bảo mật không phụ thuộc vào một biện pháp đơn lẻ?
+A. Quản lý theo vòng đời.
+B. Áp dụng Risk-base Security.
+C. Phòng thủ nhiều lớp.
+D. Cải tiến liên tục.
+Câu 12: Ba yếu tố cốt lõi trong nguyên tắc tổng thể về bảo mật là:
+A. Phần cứng – Phần mềm – Dữ liệu.
+B. Con người – Quy trình – Công nghệ.
+C. Nhận diện – Đánh giá – Xử lý.
+D. Firewall – Antivirus – IDS.
+Câu 13: Trong quản lý định danh (IAM), chính sách nào giúp tăng cường bảo mật tài khoản?
+A. Sử dụng tài khoản mặc định.
+B. Thiết lập chính sách mật khẩu mạnh.
+C. Giữ lại các tài khoản không còn sử dụng.
+D. Dùng chung tài khoản quản trị và người dùng.
+Câu 14: Để kiểm soát truy cập hiệu quả, chúng ta nên:
+A. Luôn chạy dịch vụ với quyền Root/Admin để đảm bảo hiệu năng.
+B. Không chạy dịch vụ với quyền Root/Admin.
+C. Chỉ kiểm soát truy cập ở phía Frontend.
+D. Cấp quyền dư thừa để tránh lỗi ứng dụng.
+Câu 15: Biện pháp nào dùng để khắc phục lỗ hổng Kernel và bộ nhớ?
+A. Vô hiệu hóa firewall.
+B. Chặn các driver không có chữ ký số (unsigned driver).
+C. Tắt cơ chế ghi log.
+D. Sử dụng giao thức Telnet.
+Câu 16: Khi quản lý cấu hình hệ điều hành và dịch vụ, nên thực hiện thao tác nào?
+A. Mở tất cả các cổng để dễ dàng kết nối.
+B. Tắt dịch vụ và cổng không cần thiết.
+C. Khuyến khích sử dụng Telnet cho quản trị từ xa.
+D. Không cần Firewall nội bộ.
+Câu 17: Tại sao cần kiểm tra tính tương thích trước khi vá lỗi (patching)?
+A. Để tiết kiệm dung lượng bộ nhớ.
+B. Để đảm bảo bản vá không làm gián đoạn hoặc lỗi các dịch vụ đang chạy.
+C. Để xóa các log cũ.
+D. Để phân loại dữ liệu.
+Câu 18: Yêu cầu quan trọng đối với việc ghi log và giám sát là gì?
+A. Lưu log tại máy cục bộ và không cần sao lưu.
+B. Cho phép người dùng chỉnh sửa log của mình.
+C. Bảo vệ log khỏi việc bị chỉnh sửa trái phép.
+D. Chỉ ghi log các hoạt động thành công.
+Câu 19: Để bảo vệ dữ liệu nhạy cảm, chúng ta cần thực hiện:
+A. Phân loại dữ liệu và thực hiện mã hóa.
+B. Lưu trữ dữ liệu dưới dạng văn bản thuần (clear text).
+C. Hardcoded mật khẩu vào mã nguồn để tiện sử dụng.
+D. Cấp quyền truy cập cho tất cả đối tác bên thứ ba.
+Câu 20: Trong chuỗi cung ứng, cần làm gì để tăng cường bảo mật?
+A. Tin tưởng tuyệt đối vào nhà cung cấp lớn.
+B. Đánh giá mức độ an toàn của nhà cung cấp và kiểm soát quyền truy cập của đối tác.
+C. Không bao giờ cập nhật các thư viện từ bên thứ ba.
+D. Cho phép nhà cung cấp truy cập toàn quyền vào hệ thống lõi.
+Câu 21: Microsoft Baseline Security Analyzer là công cụ dùng để:
+A. Quét mã độc trên máy tính.
+B. Rà quét lỗ hổng và điểm yếu của hệ thống Windows.
+C. Tấn công giả mạo người dùng.
+D. Nghe lén dữ liệu mạng.
+Câu 22: Acunetix Web Vulnerability Scanner là công cụ chuyên dùng cho:
+A. Quét cổng dịch vụ.
+B. Ghi bàn phím.
+C. Rà quét lỗ hổng của các ứng dụng Web.
+D. Cấu hình Firewall.
+Câu 23: Công cụ Zenmap thường được sử dụng để làm gì?
+A. Mã hóa file.
+B. Quét cổng dịch vụ (Port scanning).
+C. Chặn bắt gói tin.
+D. Quản lý định danh IAM.
+Câu 24: Khi quét cổng bằng Zenmap, nếu thấy cổng 80 hoặc 443 mở, điều đó có nghĩa là:
+A. Dịch vụ gửi/nhận mail đang hoạt động.
+B. Dịch vụ tên miền DNS đang hoạt động.
+C. Dịch vụ Web đang hoạt động.
+D. Cổng SSH đang mở.
+Câu 25: Wireshark là loại công cụ gì?
+A. Công cụ rà quét lỗ hổng ứng dụng.
+B. Công cụ nghe trộm, chặn bắt và phân tích gói tin mạng (Sniffer).
+C. Công cụ ghi bàn phím phần cứng.
+D. Công cụ diệt virus.
+Câu 26: Công cụ nào dùng để ghi lại mọi thao tác nhập liệu từ bàn phím?
+A. Microsoft Baseline Security Analyzer.
+B. Acunetix.
+C. Keylogger (ví dụ: KeyGrabber).
+D. Zenmap.
+Câu 27: Khi sử dụng Wireshark, thông tin "Authorization: Basic..." thường tiết lộ điều gì nếu không được mã hóa?
+A. Địa chỉ MAC của thiết bị.
+B. Thông tin định danh (Username/Password) của người dùng.
+C. Phiên bản của Hệ điều hành.
+D. Danh sách các file trong thư mục Root.
+Câu 28: Cổng dịch vụ mặc định của SSH được hiển thị trong công cụ quét cổng là:
+A. 80.
+B. 443.
+C. 22.
+D. 53.
+Câu 29: Hoạt động "Vá thư viện lỗi thời" thuộc nhóm nhiệm vụ nào?
+A. Quản lý cấu hình hệ điều hành.
+B. Quản lý bên thứ ba và chuỗi cung ứng.
+C. Quản lý rà quét cổng.
+D. Ghi log và giám sát.
+Câu 30: Vòng đời quản lý rủi ro bao gồm các bước theo thứ tự:
+A. Đánh giá -> Nhận diện -> Giám sát -> Xử lý.
+B. Nhận diện -> Đánh giá -> Xử lý -> Giám sát.
+C. Xử lý -> Giám sát -> Nhận diện -> Đánh giá.
+D. Nhận diện -> Xử lý -> Đánh giá -> Giám sát.
+1. Công thức nào mô tả đúng về một cuộc tấn công? 
+A. Tấn công = Mối đe dọa + Điểm yếu 
+B. Tấn công = Điểm yếu + Lỗ hổng 
+C. Tấn công = Mối đe dọa + Lỗ hổng
+D. Tấn công = Mối đe dọa + Tài sản
+2. Tấn công mật khẩu bằng cách thử tất cả các tổ hợp ký tự có thể gọi là: 
+A. Tấn công từ điển 
+B. Tấn công vét cạn (Brute Force) 
+C. Tấn công giả mạo 
+D. Tấn công nghe lén
+3. Tấn công từ điển (Dictionary Attack) dựa trên: 
+A. Việc thử ngẫu nhiên các ký tự 
+B. Danh sách các mật khẩu thông dụng hoặc từ có ý nghĩa 
+C. Việc cài đặt phần mềm gián điệp 
+D. Việc đánh cắp file chứa hash mật khẩu
+4. Biện pháp nào giúp phòng chống tấn công mật khẩu hiệu quả? 
+A. Sử dụng mật khẩu ngắn cho dễ nhớ 
+B. Sử dụng xác thực đa nhân tố (MFA)
+C. Lưu mật khẩu vào file word trên màn hình 
+D. Sử dụng một mật khẩu cho tất cả tài khoản
+5. Tấn công DoS (Denial of Service) nhằm mục đích gì?
+A. Đánh cắp thông tin khách hàng 
+B. Thay đổi giao diện website 
+C. Làm ngưng trệ hoặc làm tê liệt hệ thống dịch vụ 
+D. Mã hóa dữ liệu để tống tiền
+6. Đặc điểm của tấn công DDoS so với DoS là: 
+A. Tấn công từ một máy duy nhất B. Tấn công từ nhiều nguồn (mạng máy tính ma - Botnet) 
+C. Chỉ tấn công vào tầng ứng dụng D. Không thể phòng chống được
+7. Botnet là gì? 
+A. Một loại tường lửa thế hệ mới B. Một mạng lưới các máy tính bị chiếm quyền điều khiển (Zombie) 
+C. Một phần mềm diệt virus mạnh D. Hệ thống máy chủ dự phòng
+8. Tấn công tràn bộ đệm (Buffer Overflow) xảy ra khi: 
+A. Ổ cứng bị đầy B. Dữ liệu ghi vào bộ nhớ vượt quá dung lượng được cấp phát 
+C. CPU quá nóng D. Mất kết nối mạng
+9. Mục tiêu chính của tấn công tràn bộ đệm là: 
+A. Làm hỏng phần cứng B. Chèn và thực thi mã độc với quyền hạn của chương trình bị lỗi
+C. Tăng tốc độ máy tính D. Quét virus cho hệ thống
+10. Tấn công SQL Injection khai thác lỗ hổng ở đâu?
+A. Hệ điều hành Windows B. Quá trình kiểm tra dữ liệu đầu vào của ứng dụng web 
+C. Card mạng của máy chủ D. Tường lửa lớp mạng
+11. Hậu quả của SQL Injection có thể là: 
+A. Máy tính bị tắt đột ngột B. Kẻ tấn công có thể xem, sửa, xóa dữ liệu trong database C. Làm tăng băng thông mạng D. Làm hỏng màn hình máy tính
+12. Tấn công XSS (Cross-Site Scripting) thực hiện bằng cách: 
+A. Gửi email rác B. Chèn các đoạn mã script độc hại vào trang web
+C. Tấn công vào phần cứng máy chủ D. Bẻ khóa mật khẩu wifi
+13. Sniffing là hành động: 
+A. Phá hủy dữ liệu B. Nghe lén thông tin trên đường truyền mạng 
+C. Gửi bom thư D. Định dạng lại ổ cứng
+14. Tấn công Người đứng giữa (Man-in-the-Middle) là:
+A. Kẻ tấn công ngồi cạnh nạn nhân B. Kẻ tấn công chặn bắt và chuyển tiếp thông điệp giữa hai bên 
+C. Kẻ tấn công chiếm quyền quản trị server D. Kẻ tấn công gửi virus qua USB
+15. Biện pháp hiệu quả nhất chống Man-in-the-Middle là: 
+A. Tắt máy tính khi không dùng B. Sử dụng mã hóa và xác thực thông tin nhận dạng 
+C. Dùng phần mềm dọn rác D. Thay đổi địa chỉ IP thường xuyên
+16. Mail bomb (Bom thư) là một dạng của tấn công: 
+A. Đánh cắp thông tin B. Từ chối dịch vụ (DoS) 
+C. Phần mềm độc hại D. Lừa đảo (Phishing)
+17. Phần mềm độc hại (Malware) bao gồm: 
+A. Virus, Worm, Trojan B. Spyware, Adware, Ransomware 
+C. Cả A và B đều đúng D. Chỉ bao gồm các phần mềm quảng cáo
+18. Đặc điểm chính của Virus máy tính là: 
+A. Tự lan truyền qua mạng mà không cần file vật chủ B. Phải đính kèm vào một chương trình hoặc file để lây lan 
+C. Là một phần cứng độc hại D. Luôn hiển thị quảng cáo trên màn hình
+19. Đặc điểm của Worm (Sâu máy tính) khác với Virus ở chỗ: 
+A. Có khả năng tự nhân bản và lây lan qua mạng độc lập B. Không gây hại cho máy tính 
+C. Cần người dùng mở file mới lây được D. Chỉ tồn tại trong bộ nhớ RAM
+20. Trojan Horse là loại phần mềm: 
+A. Có khả năng tự sao chép cực nhanh B. Ngụy trang dưới dạng một phần mềm hữu ích để lừa người dùng 
+C. Chuyên dùng để nén dữ liệu D. Tự động diệt virus khác
+21. Chức năng chính của Spyware (Phần mềm gián điệp) là: 
+A. Xóa dữ liệu ổ cứng B. Âm thầm thu thập thông tin người dùng gửi về cho kẻ tấn công 
+C. Hiển thị thông báo trúng thưởng D. Tăng tốc độ duyệt web
+22. Ransomware là loại mã độc: 
+A. Tự động gửi email rác B. Mã hóa dữ liệu của nạn nhân để đòi tiền chuộc 
+C. Theo dõi bàn phím người dùng D. Tạo ra các quảng cáo pop-up
+23. Rootkit được sử dụng để: 
+A. Làm sạch hệ điều hành B. Che giấu sự hiện diện của kẻ tấn công hoặc mã độc trong hệ thống 
+C. Tăng quyền hạn cho người dùng bình thường D. Sao lưu dữ liệu tự động
+24. Kỹ thuật Social Engineering (Tấn công phi kỹ thuật) tập trung vào: 
+A. Khai thác lỗi phần mềm B. Đánh lừa và thao túng tâm lý con người
+C. Tấn công vào tường lửa D. Bẻ khóa mã hóa AES
+25. Phishing (Lừa đảo trực tuyến) thường thực hiện qua: 
+A. Tin nhắn SMS hoặc Email giả mạo B. Các trang web trông giống như trang web ngân hàng thật
+C. Cả A và B đều đúng D. Việc tấn công trực tiếp vào cơ sở dữ liệu
+26. Hoạt động "Vét cạn" (Brute-force) có đặc điểm: 
+A. Rất nhanh chóng B. Tốn thời gian và tài nguyên tính toán 
+C. Không bao giờ thành công D. Dựa trên sự sơ hở của con người
+27. Để phòng chống Spyware, người dùng nên: 
+A. Không bao giờ tắt máy tính B. Sử dụng phần mềm Anti-spyware và không tải phần mềm lạ 
+C. Chia sẻ mật khẩu cho người thân D. Click vào mọi link trong email
+28. Một trong các dấu hiệu máy tính bị nhiễm Malware là: 
+A. Máy chạy nhanh hơn bình thường B. Xuất hiện các cửa sổ quảng cáo lạ hoặc máy chạy rất chậm 
+C. Dung lượng ổ cứng tự tăng lên D. Màn hình sắc nét hơn
+29. Tấn công vào tính Toàn vẹn (Integrity) là dạng: 
+A. Ngắt quãng (Interruption) B. Sửa đổi (Modification) 
+C. Chặn bắt (Interception) D. Giả mạo (Fabrication)
+30. Tấn công vào tính Bí mật (Confidentiality) là dạng: 
+A. Ngắt quãng B. Sửa đổi C. Chặn bắt D. Giả mạo
+31. Tấn công vào tính Sẵn dùng (Availability) là dạng: 
+A. Ngắt quãng B. Sửa đổi C. Chặn bắt D. Giả mạo
+32. Logic Bomb (Bom logic) sẽ "nổ" khi: 
+A. Máy tính được bật lên B. Một điều kiện hoặc thời điểm cụ thể được thỏa mãn 
+C. Người dùng gõ chữ "Virus" D. Có kết nối Internet
+33. Adware là loại phần mềm: 
+A. Chuyên dùng để thiết kế quảng cáo B. Tự động hiển thị các quảng cáo không mong muốn 
+C. Mã hóa dữ liệu đòi tiền chuộc D. Bảo vệ người dùng khỏi quảng cáo
+34. Kỹ thuật "Hoovering" trong tấn công mật khẩu là gì? A. Thử mật khẩu ngẫu nhiên B. Thu thập các thông tin cá nhân của nạn nhân để đoán mật khẩu C. Sử dụng siêu máy tính để bẻ khóa D. Một dạng tấn công từ chối dịch vụ
+35. Khi bị tấn công Ransomware, chuyên gia khuyên điều gì đầu tiên? A. Trả tiền ngay lập tức B. Cách ly máy tính khỏi mạng để tránh lây lan C. Xóa toàn bộ dữ liệu ngay D. Cài thêm nhiều phần mềm quảng cáo
+36. Các công cụ rà quét cổng (Port Scanner) giúp kẻ tấn công: A. Xóa log hệ thống B. Xác định các dịch vụ đang chạy và lỗ hổng tiềm ẩn C. Đọc nội dung email D. Thay đổi mật khẩu admin
+37. Wireshark là công cụ hỗ trợ dạng tấn công nào? A. SQL Injection B. Sniffing (Nghe lén) C. XSS D. DoS
+38. "Zombies" trong mạng Botnet là: A. Những kẻ tấn công chuyên nghiệp B. Các máy tính nạn nhân bị chiếm quyền điều khiển C. Các phần mềm diệt virus bị hỏng D. Nhân viên an ninh mạng
+39. Để chống lại SQL Injection, lập trình viên cần: A. Ẩn website đi B. Kiểm tra và lọc kỹ dữ liệu đầu vào (Input Validation) C. Cho phép người dùng nhập mọi ký tự D. Không dùng database nữa
+40. Tấn công Phishing thường nhắm tới thông tin nào? A. Tên thú cưng B. Số điện thoại người thân C. Thông tin tài khoản ngân hàng, thẻ tín dụng D. Thời tiết khu vực
+41. Backdoor (Cửa sau) là: A. Cổng sau của tòa nhà chứa máy chủ B. Một lối vào bí mật giúp kẻ tấn công quay lại hệ thống mà không cần xác thực C. Một loại tường lửa bảo mật D. Chương trình dùng để tối ưu hóa Windows
+42. Script Kiddies là thuật ngữ chỉ: A. Các chuyên gia bảo mật hàng đầu B. Những người dùng công cụ tấn công có sẵn mà không hiểu sâu về kỹ thuật C. Các lập trình viên viết mã độc chuyên nghiệp D. Những đứa trẻ học lập trình web
+43. Tấn công giả mạo (Fabrication) xâm hại thuộc tính nào? A. Tính bí mật B. Tính xác thực C. Tính sẵn dùng D. Tính kinh tế
+44. Keylogger có thể tồn tại ở dạng: A. Chỉ là phần mềm B. Chỉ là thiết bị phần cứng C. Cả phần mềm và phần cứng D. Chỉ là một đoạn mã script trên web
+45. Spam (Thư rác) gây mất an toàn thông tin vì: A. Làm tốn dung lượng hòm thư B. Có thể chứa link lừa đảo hoặc mã độc C. Cả A và B đều đúng D. Làm cho email thật bị gửi chậm đi
+46. Một cuộc tấn công hỗn hợp (Blended Threat) là: A. Chỉ sử dụng virus B. Chỉ sử dụng lừa đảo C. Kết hợp nhiều loại mã độc và kỹ thuật tấn công khác nhau D. Tấn công vào cả phần cứng và phần mềm đồng thời
+47. Hình thức "Vishing" là: A. Lừa đảo qua video B. Lừa đảo qua giọng nói (gọi điện thoại) C. Lừa đảo qua mạng xã hội D. Lừa đảo qua mã QR
+48. Mục đích của tấn công "Pharming" là: A. Gửi email rác số lượng lớn B. Chuyển hướng người dùng đến một trang web giả mạo dù họ gõ đúng địa chỉ C. Đánh cắp mật khẩu wifi D. Tấn công vào các nông trại thông minh
+49. Để phòng chống Malware qua USB, nên: A. Luôn mở file ngay khi cắm USB B. Quét virus USB trước khi mở và tắt tính năng AutoRun C. Dán băng dính vào cổng USB D. Chỉ dùng USB của người lạ
+50. Khái niệm "Zero-day Attack" chỉ các cuộc tấn công: A. Diễn ra trong vòng 0 ngày B. Khai thác các lỗ hổng chưa được biết tới hoặc chưa có bản vá C. Do máy tính không có lịch ngày tháng D. Chỉ tấn công vào lúc 0 giờ
+51. Trong mật mã học, "Bản rõ" (Plaintext) là: A. Thông tin ban đầu có thể đọc và hiểu được B. Thông tin sau khi đã được mã hóa C. Khóa dùng để giải mã D. Thuật toán mã hóa
+52. "Bản mã" (Ciphertext) là: A. Thông tin chưa được xử lý B. Thông tin sau khi biến đổi bằng thuật toán mã hóa, không đọc được trực tiếp C. Chữ ký của người gửi D. Mật khẩu máy tính
+53. Hệ mã hóa đối xứng (Symmetric Encryption) sử dụng: A. Một khóa duy nhất cho cả mã hóa và giải mã B. Hai khóa khác nhau (khóa công khai và khóa bí mật) C. Không cần dùng khóa D. Chỉ dùng khóa để mã hóa, không cần để giải mã
+54. Nhược điểm chính của hệ mã hóa đối xứng là: A. Tốc độ mã hóa chậm B. Thuật toán quá phức tạp C. Khó khăn trong việc phân phối và quản lý khóa an toàn D. Độ an toàn không cao bằng mã hóa cổ điển
+55. Đâu là thuật toán mã hóa đối xứng? A. RSA B. AES C. ElGamal D. ECC
+56. Hệ mã hóa bất đối xứng (Asymmetric Encryption) còn gọi là: A. Mã hóa khóa chung B. Mã hóa khóa công khai C. Mã hóa dòng D. Mã hóa cổ điển
+57. Trong mã hóa khóa công khai, cặp khóa bao gồm: A. Khóa đỏ và khóa xanh B. Khóa công khai (Public key) và khóa bí mật (Private key) C. Khóa phiên và khóa chính D. Khóa mã và khóa băm
+58. Để gửi một thông điệp bí mật cho người B bằng mã hóa bất đối xứng, người A phải dùng: A. Khóa công khai của người B B. Khóa bí mật của người B C. Khóa công khai của chính mình (người A) D. Khóa bí mật của chính mình (người A)
+59. Để giải mã thông điệp đã được mã hóa bằng khóa công khai của mình, người B dùng: A. Khóa công khai của người A B. Khóa công khai của chính mình C. Khóa bí mật của chính mình D. Khóa bí mật của người A
+60. Đâu là thuật toán mã hóa bất đối xứng? A. DES B. 3DES C. RSA D. Blowfish
+61. Ưu điểm của mã hóa bất đối xứng so với đối xứng là: A. Việc quản lý và phân phối khóa dễ dàng và an toàn hơn B. Tốc độ mã hóa nhanh hơn rất nhiều C. Không cần sử dụng toán học phức tạp D. Dung lượng bản mã nhỏ hơn bản rõ
+62. Hàm băm (Hash Function) có đặc điểm: A. Có thể giải mã ngược lại bản rõ B. Là hàm một chiều, không thể đảo ngược C. Đầu ra có độ dài thay đổi tùy theo đầu vào D. Cần dùng khóa để tạo ra mã băm
+63. Mục đích chính của hàm băm là đảm bảo: A. Tính bí mật B. Tính toàn vẹn C. Tính sẵn dùng D. Tính kinh tế
+64. Một xung đột (Collision) trong hàm băm xảy ra khi: A. Hai bản rõ giống nhau cho ra hai mã băm khác nhau B. Hai bản rõ khác nhau cho ra cùng một mã băm C. Mã băm quá dài không lưu được D. Thuật toán băm bị lỗi
+65. Các thuật toán hàm băm phổ biến là: A. AES, DES B. MD5, SHA-1, SHA-256 C. RSA, ECC D. Huffman, LZW
+66. Chữ ký số (Digital Signature) cung cấp các thuộc tính nào? A. Xác thực nguồn gốc, Tính toàn vẹn B. Tính chống chối bỏ C. Cả A và B đều đúng D. Chỉ cung cấp tính bí mật
+67. Để ký một thông điệp bằng chữ ký số, người gửi sử dụng: A. Khóa công khai của mình B. Khóa bí mật của mình C. Khóa công khai của người nhận D. Khóa bí mật của người nhận
+68. Để kiểm tra (xác minh) chữ ký số, người nhận sử dụng: A. Khóa công khai của người gửi B. Khóa bí mật của người gửi C. Khóa công khai của mình D. Khóa bí mật của mình
+69. Chứng chỉ số (Digital Certificate) dùng để làm gì? A. Để thay thế cho mật khẩu Windows B. Để xác thực mối liên hệ giữa một thực thể và khóa công khai của nó C. Để mã hóa ổ cứng máy tính D. Để lưu trữ mật khẩu trình duyệt
+70. Tổ chức cấp phát chứng chỉ số gọi là: A. ISP B. FBI C. CA (Certificate Authority) D. NASA
+71. Hạ tầng khóa công khai PKI (Public Key Infrastructure) bao gồm: A. Các chính sách và quy trình B. Các thành phần phần cứng, phần mềm, con người C. Tất cả các yếu tố trên nhằm quản lý chứng chỉ số và khóa D. Chỉ bao gồm các thuật toán mã hóa
+72. Mã hóa dòng (Stream Cipher) thực hiện: A. Mã hóa từng bit hoặc từng byte một của bản rõ B. Mã hóa từng khối dữ liệu (ví dụ 64 bit hoặc 128 bit) C. Chỉ mã hóa phần tiêu đề của gói tin D. Không cần dùng khóa
+73. Mã hóa khối (Block Cipher) thực hiện: A. Mã hóa từng ký tự đơn lẻ B. Chia bản rõ thành các khối có kích thước cố định để mã hóa C. Chỉ mã hóa được các file văn bản D. Tự động nén dữ liệu trước khi mã hóa
+74. Tiêu chuẩn mã hóa nâng cao AES hiện nay sử dụng kích thước khối là bao nhiêu? A. 64 bit B. 128 bit C. 256 bit D. 512 bit
+75. Trong bài toán Ước chung lớn nhất, gcd(a, b) là: A. Số nguyên dương lớn nhất là ước của cả a và b B. Số nguyên dương nhỏ nhất là bội của cả a và b C. Tích của a và b D. Tổng của a và b
+76. Số nguyên tố là số: A. Chia hết cho 2 B. Chỉ có hai ước là 1 và chính nó C. Có ít nhất 3 ước số D. Luôn là số lẻ
+77. Phép toán Module (a mod n) trả về: A. Thương của phép chia a cho n B. Số dư của phép chia a cho n C. Kết quả phép nhân a với n D. Số nguyên lớn nhất nhỏ hơn a/n
+78. Hệ mã hóa Caesar là loại hệ mã: A. Thay thế đơn bảng cổ điển B. Hoán vị hiện đại C. Bất đối xứng mạnh D. Không sử dụng khóa
+79. Hệ mã Caesar dịch chuyển k vị trí, nếu k=3 thì chữ 'A' sẽ được mã hóa thành: A. 'B' B. 'C' C. 'D' D. 'E'
+80. Thám mã (Cryptanalysis) là quá trình: A. Tạo ra các thuật toán mã hóa mới B. Tìm cách phá mã hoặc tìm bản rõ mà không biết khóa C. Sao lưu các bản mã D. Cài đặt các chứng chỉ số
+81. Độ dài khóa càng lớn thì: A. Độ an toàn càng cao nhưng tốc độ xử lý có thể chậm hơn B. Độ an toàn càng thấp C. Tốc độ mã hóa càng nhanh D. Dữ liệu sau mã hóa càng nhỏ
+82. Để đạt được cả tính bí mật và xác thực, người ta thường dùng: A. Chỉ mã hóa đối xứng B. Chỉ chữ ký số C. Kết hợp mã hóa khóa công khai và chữ ký số D. Chỉ dùng hàm băm
+83. Mã xác thực thông điệp MAC (Message Authentication Code) khác hàm băm ở chỗ: A. MAC nhanh hơn hàm băm B. MAC tạo ra mã ngắn hơn C. MAC sử dụng một khóa bí mật để tạo ra mã xác thực D. MAC không đảm bảo tính toàn vẹn
+84. Tại sao MD5 và SHA-1 hiện nay không còn được khuyến cáo dùng cho bảo mật cao? A. Vì chúng quá chậm B. Vì đã tìm ra các điểm yếu và khả năng xảy ra xung đột cao C. Vì chúng tạo ra mã băm quá dài D. Vì chúng yêu cầu bản quyền trả phí
+85. Trong thuật toán RSA, độ an toàn dựa trên khó khăn của bài toán nào? A. Bài toán logarit rời rạc B. Bài toán phân tích một số nguyên cực lớn thành các thừa số nguyên tố C. Bài toán tính căn bậc hai D. Bài toán xếp balo
+86. Thuật toán ElGamal và ECC (Elliptic Curve Cryptography) dựa trên bài toán: A. Logarit rời rạc B. Phân tích số nguyên C. Cộng hai số lớn D. Nghịch đảo ma trận
+87. Chứng chỉ số X.509 là: A. Một tiêu chuẩn phổ biến cho định dạng chứng chỉ số B. Một loại virus máy tính C. Một giao thức truyền file D. Tên một loại tường lửa
+88. Trong SSL/TLS, mã hóa bất đối xứng thường được dùng để: A. Mã hóa toàn bộ dữ liệu truyền tải B. Trao đổi khóa đối xứng (khóa phiên) lúc khởi đầu C. Kiểm tra virus trong gói tin D. Tăng tốc độ đường truyền
+89. Mã hóa nội dung mail (như S/MIME hoặc PGP) sử dụng: A. Chỉ mã hóa đối xứng B. Chỉ mã hóa bất đối xứng C. Mã hóa lai (kết hợp cả hai) D. Chỉ dùng hàm băm
+90. Bước đầu tiên khi tạo chữ ký số là: A. Mã hóa bản rõ bằng khóa công khai B. Tạo mã băm (Message Digest) từ bản rõ C. Gửi bản rõ đi ngay D. Đặt mật khẩu cho file
+91. Nếu bản rõ bị thay đổi dù chỉ 1 bit, mã băm sẽ: A. Giữ nguyên không đổi B. Thay đổi hoàn toàn (hiệu ứng thác đổ) C. Chỉ thay đổi 1 bit tương ứng D. Trở nên ngắn hơn
+92. Để đảm bảo tính chống chối bỏ (Non-repudiation), yếu tố nào là quan trọng nhất? A. Mật khẩu đăng nhập B. Tường lửa C. Chữ ký số dùng khóa bí mật cá nhân D. Phần mềm diệt virus
+93. Khóa phiên (Session Key) là: A. Khóa dùng vĩnh viễn B. Khóa đối xứng chỉ dùng cho một phiên làm việc cụ thể C. Khóa công khai của máy chủ D. Mật khẩu của quản trị viên
+94. Steganography (Giấu tin) khác mã hóa ở chỗ: A. Mã hóa an toàn hơn B. Giấu tin che giấu sự tồn tại của thông điệp, mã hóa che giấu nội dung thông điệp C. Giấu tin làm thông điệp dễ đọc hơn D. Mã hóa luôn làm thông điệp ngắn lại
+95. Thủy ký số (Digital Watermarking) thường dùng để: A. Bảo vệ bản quyền tác giả cho các tệp tin đa phương tiện (ảnh, nhạc, video) B. Mã hóa tài liệu văn bản C. Diệt mã độc trong file ảnh D. Giảm dung lượng file
+96. Một hệ mật mã được coi là an toàn tuyệt đối khi: A. Dùng khóa 256 bit B. Dùng thuật toán RSA C. Kẻ tấn công không thể tìm được bản rõ ngay cả khi có vô hạn thời gian và tài nguyên (về mặt lý thuyết) D. Không ai biết thuật toán mã hóa
+97. Khoảng cách Hamming giữa hai chuỗi nhị phân là: A. Tổng giá trị các bit B. Số vị trí mà các bit tương ứng khác nhau C. Độ dài của chuỗi D. Số lượng bit 0 trong chuỗi
+98. Trong PKI, thực thể đăng ký (RA - Registration Authority) có nhiệm vụ: A. Kiểm tra danh tính của thực thể yêu cầu chứng chỉ trước khi CA cấp phát B. Trực tiếp ký vào chứng chỉ số C. Hủy bỏ khóa bí mật của người dùng D. Lưu trữ mật khẩu của người dùng
+99. Danh sách thu hồi chứng chỉ (CRL - Certificate Revocation List) chứa: A. Danh sách các CA uy tín B. Danh sách các chứng chỉ số không còn hiệu lực trước khi hết hạn C. Danh sách các mật khẩu bị lộ D. Danh sách các website bị chặn
+100. Mục đích của việc nén dữ liệu (như Huffman) trước khi mã hóa là: A. Để bản mã đẹp hơn B. Để tăng tính bảo mật bằng cách giảm dư thừa dữ liệu C. Để giảm thời gian truyền tải D. Cả B và C đều đúng
+1. Quá trình tạo ra bản sao của dữ liệu gốc để lưu trữ tại vị trí khác nhằm phòng ngừa mất mát gọi là: A. Phục hồi dữ liệu B. Sao lưu dữ liệu (Data Backup) C. Khôi phục thảm họa D. Lưu trữ đám mây
+2. Quá trình khôi phục lại dữ liệu từ các bản sao lưu khi xảy ra sự cố gọi là: A. Sao lưu dữ liệu B. Phục hồi dữ liệu (Data Recovery) C. Kiểm thử hệ thống D. Lưu trữ dữ liệu
+3. Khôi phục thảm họa (Disaster Recovery - DR) là: A. Chỉ là việc cài đặt lại Windows B. Tập hợp chính sách, công cụ và quy trình để khôi phục hệ thống sau sự cố nghiêm trọng C. Việc mua bảo hiểm cho máy tính D. Quá trình quét virus cho toàn hệ thống
+4. Chỉ số RPO (Recovery Point Objective) dùng để xác định: A. Mức độ dữ liệu có thể chấp nhận mất mát (tính theo thời gian) B. Thời gian tối đa để hệ thống hoạt động trở lại C. Số lượng nhân viên cần thiết để phục hồi D. Chi phí để mua thiết bị lưu trữ
+5. Chỉ số RTO (Recovery Time Objective) dùng để xác định: A. Điểm dữ liệu cuối cùng được sao lưu B. Thời gian tối đa cho phép để phục hồi hệ thống sau sự cố C. Tốc độ đường truyền mạng D. Dung lượng của bản sao lưu
+6. Một tổ chức yêu cầu hệ thống phải phục hồi trong vòng 2 giờ sau sự cố. Chỉ số này là: A. RPO = 2 giờ B. RTO = 2 giờ C. WRT = 2 giờ D. MTD = 2 giờ
+7. Một ngân hàng yêu cầu nếu có sự cố, họ chỉ chấp nhận mất tối đa dữ liệu của 5 phút gần nhất. Chỉ số này là: A. RPO = 5 phút B. RTO = 5 phút C. MTBF = 5 phút D. MTTR = 5 phút
+8. Loại sao lưu nào sao chép toàn bộ dữ liệu được chọn, bất kể dữ liệu đó có thay đổi hay không? A. Sao lưu đầy đủ (Full Backup) B. Sao lưu lũy tiến (Incremental Backup) C. Sao lưu khác biệt (Differential Backup) D. Sao lưu gương (Mirror Backup)
+9. Đặc điểm của Full Backup là: A. Tốc độ sao lưu rất nhanh B. Tốn nhiều dung lượng lưu trữ và thời gian sao lưu lâu nhất C. Khó khôi phục dữ liệu nhất D. Chỉ sao lưu các file mới tạo
+10. Sao lưu lũy tiến (Incremental Backup) chỉ sao lưu: A. Toàn bộ hệ thống B. Những dữ liệu thay đổi kể từ lần sao lưu gần nhất (bất kể loại nào) C. Những dữ liệu thay đổi kể từ lần Full Backup gần nhất D. Chỉ các file hệ điều hành
+11. Ưu điểm của Incremental Backup là: A. Thời gian sao lưu nhanh nhất và tốn ít dung lượng nhất B. Thời gian khôi phục dữ liệu nhanh nhất C. Chỉ cần 1 bản duy nhất để khôi phục D. Không cần dùng phần mềm chuyên dụng
+12. Sao lưu khác biệt (Differential Backup) sao lưu: A. Tất cả dữ liệu hiện có B. Dữ liệu thay đổi so với ngày hôm qua C. Dữ liệu thay đổi kể từ lần Full Backup gần nhất D. Chỉ các thư mục có tên bắt đầu bằng chữ "D"
+13. Khi khôi phục từ Differential Backup, bạn cần: A. Tất cả các bản Incremental trước đó B. Bản Full Backup gần nhất và bản Differential cuối cùng C. Chỉ cần bản Differential cuối cùng D. Chỉ cần bản Full Backup gần nhất
+14. Khi khôi phục từ Incremental Backup, bạn cần: A. Bản Full Backup gần nhất và TẤT CẢ các bản Incremental kể từ đó B. Chỉ bản Incremental cuối cùng C. Bản Full Backup gần nhất và bản Incremental đầu tiên D. Không cần bản Full Backup
+15. Phương pháp sao lưu nào tạo ra một bản sao giống hệt dữ liệu gốc tại thời điểm thực? A. Full Backup B. Incremental Backup C. Mirror Backup (Sao lưu gương) D. Differential Backup
+16. Thiết bị lưu trữ nào có chi phí thấp, dung lượng lớn nhưng tốc độ truy cập ngẫu nhiên chậm? A. Ổ cứng SSD B. USB Flash C. Băng từ (Magnetic Tape) D. Ổ cứng HDD
+17. Lưu trữ mạng NAS (Network Attached Storage) là: A. Một dịch vụ của Google Drive B. Thiết bị lưu trữ chuyên dụng kết nối trực tiếp vào mạng nội bộ C. Một giao thức mã hóa dữ liệu D. Một loại virus tấn công ổ cứng
+18. Mạng lưu trữ SAN (Storage Area Network) thường dùng cho: A. Cá nhân sử dụng tại nhà B. Các doanh nghiệp lớn cần tốc độ truy cập dữ liệu cực cao và tập trung C. Chỉ dùng để lưu trữ email rác D. Thay thế cho mạng Internet
+19. Chiến lược sao lưu 3-2-1 nghĩa là: A. 3 người giữ, 2 mật khẩu, 1 máy chủ B. 3 bản sao, 2 loại phương tiện lưu trữ, 1 bản lưu trữ ngoại vi (off-site) C. 3 ngày sao lưu, 2 lần kiểm tra, 1 người quản lý D. 3 bản Full, 2 bản Diff, 1 bản Incre
+20. Tại sao cần có ít nhất 1 bản sao lưu "ngoại vi" (Off-site)? A. Để tránh bị nhân viên trong công ty nhìn thấy B. Để bảo vệ dữ liệu nếu xảy ra thảm họa tại chỗ (cháy nổ, ngập lụt tại trụ sở) C. Để tiết kiệm điện cho công ty D. Vì luật pháp yêu cầu như vậy
+21. Cloud Backup (Sao lưu đám mây) có ưu điểm gì? A. Không cần kết nối Internet B. Khả năng mở rộng linh hoạt và truy cập từ mọi nơi C. Hoàn toàn miễn phí cho mọi dung lượng D. Không bao giờ bị tấn công mạng
+22. Cold Site trong phục hồi thảm họa là: A. Một địa điểm dự phòng chỉ có hạ tầng cơ bản (điện, nước), không có máy chủ sẵn sàng B. Một phòng máy chủ có nhiệt độ rất thấp C. Địa điểm có đầy đủ dữ liệu và thiết bị, sẵn sàng chạy ngay D. Một dịch vụ lưu trữ trên mặt trăng
+23. Hot Site trong phục hồi thảm họa là: A. Địa điểm có nguy cơ cháy nổ cao B. Địa điểm dự phòng có đầy đủ thiết bị và dữ liệu đồng bộ, sẵn sàng hoạt động ngay lập tức C. Địa điểm chỉ dùng để lưu trữ giấy tờ D. Một website có nhiều người truy cập
+24. Warm Site là sự kết hợp giữa: A. Full và Incremental Backup B. Cold Site và Hot Site C. NAS và SAN D. RPO và RTO
+25. Kiểm thử phục hồi (Recovery Testing) nhằm mục đích: A. Để làm cho nhân viên bận rộn B. Đảm bảo các bản sao lưu thực sự hoạt động và quy trình phục hồi hiệu quả C. Để xóa bớt dữ liệu cũ D. Để kiểm tra tốc độ đánh máy của nhân viên
+26. RPO của ngành Tài chính/Ngân hàng thường yêu cầu: A. Rất thấp, gần bằng 0 B. Khoảng 24 giờ C. Tùy thuộc vào thời tiết D. Không cần RPO
+27. RPO của ngành Y tế thường dao động trong khoảng: A. 1 tuần B. 1 - 4 giờ C. 10 - 20 ngày D. Luôn luôn bằng 0
+28. Thứ tự ưu tiên phục hồi dữ liệu nên dựa trên: A. Tên của file theo bảng chữ cái B. Dung lượng file từ nhỏ đến lớn C. Mức độ quan trọng của nghiệp vụ (Business Criticality) D. Thời gian tạo file
+29. Snapshot trong sao lưu dữ liệu là: A. Một bức ảnh chụp màn hình máy tính B. Bản ghi lại trạng thái của hệ thống tại một thời điểm cụ thể C. Một phần mềm diệt virus D. Một loại ổ cứng mới
+30. Bản sao lưu ngoại vi (Off-site) có thể lưu tại: A. Ngay trên bàn làm việc của sếp B. Trong cùng một tủ với máy chủ chính C. Một chi nhánh khác hoặc trên dịch vụ đám mây D. Trong thùng rác của máy tính
+31. Yếu tố nào ảnh hưởng lớn nhất đến chi phí sao lưu? A. Màu sắc của ổ cứng B. Tần suất sao lưu và dung lượng dữ liệu C. Số lượng người dùng trong công ty D. Loại bàn phím đang sử dụng
+32. Phục hồi thảm họa (DR) khác với Sao lưu (Backup) ở chỗ: A. DR chỉ dành cho cá nhân B. DR tập trung vào việc duy trì tính liên tục của toàn bộ dịch vụ, không chỉ dữ liệu C. Backup tốn nhiều tiền hơn DR D. Backup chỉ dùng cho điện thoại
+33. Lưu trữ hướng đối tượng (Object Storage) thường dùng cho: A. Cơ sở dữ liệu SQL B. Dữ liệu không cấu trúc quy mô lớn (ảnh, video, log) C. Chỉ dùng cho các file .exe D. Lưu trữ RAM
+34. Sao lưu dữ liệu tự động giúp: A. Loại bỏ hoàn toàn lỗ hổng bảo mật B. Giảm thiểu sai sót do con người và đảm bảo tính đều đặn C. Tăng tốc độ máy tính lên gấp đôi D. Máy tính không bao giờ bị hỏng
+35. Khi thực hiện sao lưu, việc mã hóa bản sao lưu nhằm: A. Làm cho bản sao lưu nhỏ hơn B. Đảm bảo tính bí mật nếu phương tiện lưu trữ bị mất trộm C. Tăng tốc độ sao lưu D. Để virus không thể lây nhiễm
+36. Kiểm tra tính toàn vẹn của bản sao lưu (Integrity Check) thường dùng: A. Phần mềm Word B. Hàm băm (Hash) C. Kính hiển vi D. Phép tính cộng đơn giản
+37. Dịch vụ DRaaS (Disaster Recovery as a Service) là: A. Một phần mềm diệt virus miễn phí B. Dịch vụ khôi phục thảm họa dựa trên nền tảng đám mây C. Một loại cáp mạng mới D. Quy trình dọn dẹp văn phòng
+38. Một hệ thống có tính sẵn dùng cao (High Availability) thường hướng tới con số: A. 50% B. 90% C. 99.999% (Five Nines) D. 100% (không bao giờ đạt được)
+39. Công cụ sao lưu có sẵn trên Windows 10/11 là: A. Time Machine B. File History C. Disk Cleanup D. Notepad
+40. RAID là công nghệ dùng để: A. Kết hợp nhiều ổ cứng vật lý thành một hệ thống lưu trữ logic để tăng hiệu năng hoặc dự phòng B. Một loại mã độc tống tiền C. Hệ thống tường lửa phần cứng D. Giao thức truyền tin nhắn bí mật
+41. RAID 1 hoạt động theo cơ chế: A. Phân mảnh dữ liệu B. Ghi dữ liệu giống hệt nhau lên hai ổ cứng (Mirroring) C. Chỉ dùng một ổ cứng duy nhất D. Mã hóa dữ liệu 2 lớp
+42. RAID 0 tập trung vào: A. Tăng tốc độ truy xuất dữ liệu (Striping) B. Đảm bảo an toàn dữ liệu tuyệt đối C. Phục hồi thảm họa ngoại vi D. Tiết kiệm điện năng
+43. Nhược điểm của RAID 0 là: A. Tốc độ rất chậm B. Nếu một ổ hỏng, toàn bộ dữ liệu sẽ mất C. Tốn gấp đôi dung lượng lưu trữ D. Cần cấu hình rất phức tạp
+44. Phục hồi thảm họa dựa trên ảo hóa (Virtualization) có ưu điểm: A. Khôi phục nhanh chóng và không phụ thuộc vào phần cứng vật lý cụ thể B. Không cần dùng đến mạng Internet C. Chỉ phục hồi được các file văn bản D. Làm cho thảm họa không bao giờ xảy ra
+45. Trong quy trình diễn tập khôi phục thảm họa, bước đầu tiên là: A. Xác định phạm vi diễn tập B. Chạy kịch bản tấn công ngay lập tức C. Viết báo cáo tổng kết D. Gọi điện cho cảnh sát
+46. Một bản kế hoạch BCP (Business Continuity Plan) bao gồm: A. Danh sách các món ăn trong công ty B. Các quy trình để duy trì hoạt động kinh doanh khi có sự cố C. Mã nguồn của tất cả ứng dụng D. Lịch nghỉ mát của nhân viên
+47. Sao lưu dữ liệu di động (Mobile Backup) thường dùng: A. Đĩa CD B. Băng từ C. Lưu trữ đám mây (iCloud, Google Drive) D. USB cắm liên tục
+48. Việc lưu trữ nhiều phiên bản (Versioning) của một file giúp: A. Làm ổ cứng nhanh đầy hơn B. Cho phép người dùng quay lại trạng thái trước đó của file nếu lỡ tay xóa hoặc sửa sai C. File không bao giờ bị nhiễm virus D. Tự động dịch chuyển file sang ngôn ngữ khác
+49. Hệ thống lưu trữ có tính năng "Deduplication" giúp: A. Nhân đôi dữ liệu để an toàn B. Loại bỏ các dữ liệu trùng lặp để tiết kiệm dung lượng C. Mã hóa dữ liệu bằng 2 khóa D. Tự động xóa dữ liệu sau 1 ngày
+50. Phục hồi dữ liệu từ Ransomware thành công nhất khi: A. Trả tiền chuộc đúng hạn B. Có bản sao lưu ngoại tuyến (Offline Backup) không bị ảnh hưởng bởi mã độc C. Dùng phần mềm Word để mở file bị mã hóa D. Khởi động lại máy tính nhiều lần
+51. Chiến lược thiết kế an toàn thông tin dựa trên việc xây dựng nhiều lớp phòng thủ độc lập gọi là: A. Phòng thủ biên giới B. Mô hình bảo mật nhiều lớp (Defense in Depth) C. Bảo mật một cửa D. Tấn công tổng lực
+52. Lớp đầu tiên trong mô hình bảo mật nhiều lớp là: A. Lớp vật lý (Physical Security) B. Lớp mạng (Network Security) C. Lớp ứng dụng D. Lớp dữ liệu
+53. Camera giám sát và hệ thống báo động thuộc lớp nào? A. Lớp vật lý B. Lớp con người C. Lớp thiết bị đầu cuối D. Lớp chính sách
+54. Mục tiêu của lớp "Chính sách, thủ tục và nhận thức" là: A. Cài đặt tường lửa B. Thiết lập quy định và đào tạo ý thức cho con người C. Mã hóa ổ cứng D. Giám sát lưu lượng mạng
+55. Thiết bị Firewall (Tường lửa) và hệ thống IPS thường nằm ở lớp: A. Lớp vật lý B. Lớp mạng nội bộ C. Lớp dữ liệu D. Lớp ứng dụng
+56. Bảo vệ lớp "Thiết bị đầu cuối" (Endpoint Security) bao gồm: A. Xây dựng hàng rào điện B. Cài đặt Antivirus, quản lý bản vá trên máy tính cá nhân C. Thuê bảo vệ trực cổng D. Đặt mật khẩu cho router
+57. Nguyên lý "Không tin tưởng bất kỳ thành phần nào" gắn liền với mô hình: A. VPN truyền thống B. Zero Trust (Không tin cậy) C. Open Access D. Shareware
+58. Tường lửa (Firewall) dùng để: A. Kiểm soát lưu lượng mạng vào/ra dựa trên các quy tắc an ninh B. Ngăn chặn hỏa hoạn trong phòng máy chủ C. Tăng tốc độ kết nối mạng D. Lưu trữ website
+59. Hệ thống IDS (Intrusion Detection System) dùng để: A. Ngăn chặn xâm nhập ngay lập tức B. Phát hiện và cảnh báo các hành vi xâm nhập trái phép C. Mã hóa dữ liệu đường truyền D. Thay thế cho tường lửa
+60. Sự khác biệt chính giữa IPS và IDS là: A. IDS đắt tiền hơn IPS B. IDS nằm ngoài mạng, IPS nằm trong mạng C. IPS có khả năng chủ động ngăn chặn tấn công, IDS chỉ cảnh báo D. IDS chỉ dùng cho mạng không dây
+61. Honeypot (Bẫy mật) được sử dụng để: A. Diệt virus tự động B. Đánh lạc hướng và nghiên cứu hành vi của kẻ tấn công C. Tăng cường bảo mật cho mật khẩu admin D. Lưu trữ dữ liệu quan trọng nhất của công ty
+62. Mạng riêng ảo (VPN) cung cấp khả năng: A. Truy cập internet miễn phí B. Tạo kết nối an toàn, mã hóa trên môi trường mạng không an toàn (Internet) C. Xóa log của người dùng trên web D. Tăng dung lượng ổ cứng từ xa
+63. Giao thức HTTPS sử dụng cổng mặc định là: A. 80 B. 21 C. 443 D. 22
+64. SSL/TLS là các giao thức dùng để: A. Nén file ảnh B. Bảo mật giao tiếp giữa trình duyệt và máy chủ web C. Quét lỗi ổ cứng D. Gửi email không cần mạng
+65. Một chứng chỉ SSL/TLS được cấp bởi: A. Tổ chức CA (Certificate Authority) B. Microsoft C. Google Search D. Nhà cung cấp dịch vụ Internet (ISP)
+66. Để đảm bảo an toàn cho tài khoản, nên sử dụng: A. Mật khẩu ngắn cho dễ nhớ B. Một mật khẩu cho nhiều nơi C. Xác thực đa nhân tố (MFA/2FA) D. Ghi mật khẩu dán dưới bàn phím
+67. Phần mềm Antivirus hoạt động dựa trên phương pháp: A. Nhận dạng chữ ký (Signature-based) B. Phân tích hành vi (Heuristic) C. Cả A và B đều đúng D. Chỉ dựa trên kích thước file
+68. Kiểm soát truy cập dựa trên vai trò (RBAC) nghĩa là: A. Ai vào trước được quyền cao hơn B. Cấp quyền dựa trên vị trí công việc của người dùng trong tổ chức C. Tất cả mọi người có quyền như nhau D. Chỉ giám đốc mới có quyền truy cập
+69. DMZ (Demilitarized Zone) trong thiết kế mạng là: A. Vùng mạng trung gian giữa mạng nội bộ và mạng internet, chứa các dịch vụ công cộng B. Vùng mạng không bao giờ bị tấn công C. Vùng dành riêng cho việc giải trí của nhân viên D. Tên một loại phần mềm diệt virus
+70. Web Application Firewall (WAF) chuyên dùng để bảo vệ: A. Máy tính cá nhân B. Các ứng dụng web khỏi các tấn công như SQL Injection, XSS C. Đường dây điện thoại D. Camera giám sát
+71. Quản lý bản vá (Patch Management) quan trọng vì: A. Nó giúp giao diện đẹp hơn B. Nó khắc phục các lỗ hổng bảo mật đã được phát hiện C. Nó làm máy tính chạy chậm lại để an toàn D. Nó xóa các file rác
+72. Social Engineering nhắm vào điểm yếu nào của hệ thống? A. Lỗ hổng trong mã code B. Lỗi phần cứng C. Con người D. Tường lửa cấu hình sai
+73. Giao dịch điện tử an toàn (SET) là giao thức dành cho: A. Gửi email cá nhân B. Thanh toán thẻ tín dụng qua mạng an toàn C. Xem video trực tuyến D. Chơi game qua mạng
+74. Trong SET, "Dual Signature" (Chữ ký kép) dùng để kết nối: A. Người mua và người bán B. Thông tin đơn hàng và thông tin thanh toán C. Hai máy tính với nhau D. Hai thẻ ngân hàng với nhau
+75. Mục đích của Chữ ký kép là: A. Để ngân hàng biết khách hàng mua món đồ gì cụ thể B. Để người bán không biết số thẻ tín dụng, và ngân hàng không biết chi tiết đơn hàng (đảm bảo riêng tư) C. Để tăng gấp đôi độ khó cho kẻ hack D. Để giao dịch nhanh hơn
+76. Thành phần nào trong SET thực hiện việc cấp phép thanh toán? A. Cardholder (Người chủ thẻ) B. Merchant (Người bán) C. Payment Gateway (Cổng thanh toán) D. Certificate Authority
+77. "Phishing" là hình thức tấn công bằng cách: A. Dùng siêu máy tính bẻ khóa B. Giảạo thực thể tin cậy để lừa người dùng cung cấp thông tin nhạy cảm C. Làm hỏng phần cứng máy tính D. Gửi virus qua USB
+78. Khi nhận được email lạ yêu cầu đổi mật khẩu ngân hàng, bạn nên: A. Làm theo ngay để bảo mật tài khoản B. Gửi email đó cho tất cả bạn bè C. Không click vào link và kiểm tra lại qua kênh chính thống của ngân hàng D. Xóa email và tắt máy tính vĩnh viễn
+79. Nguyên tắc "Quyền hạn tối thiểu" (Least Privilege) nghĩa là: A. Chỉ cấp cho người dùng những quyền vừa đủ để hoàn thành công việc của họ B. Không cấp bất kỳ quyền nào cho ai C. Cấp mọi quyền cho người dùng để họ tự quản lý D. Chỉ cấp quyền cho nhân viên lâu năm
+80. Logging (Ghi nhật ký) và Monitoring (Giám sát) giúp: A. Máy tính chạy nhanh hơn B. Truy vết sự cố và phát hiện các dấu hiệu tấn công sớm C. Tiết kiệm dung lượng ổ cứng D. Tự động sửa lỗi phần cứng
+81. SIEM (Security Information and Event Management) là hệ thống: A. Chỉ dùng để diệt virus B. Thu thập và phân tích log từ nhiều nguồn để quản lý an ninh tập trung C. Một loại cáp quang mới D. Hệ thống cấp điện dự phòng
+82. Để bảo vệ dữ liệu khi thiết bị bị mất, nên sử dụng: A. Dán nhãn tên lên máy B. Cài nhiều trò chơi C. Mã hóa toàn bộ ổ đĩa (Full Disk Encryption) D. Tắt nguồn máy tính
+83. Giao thức SSH (Secure Shell) dùng để: A. Chat trực tuyến B. Quản trị máy chủ từ xa một cách an toàn và mã hóa C. Tải nhạc miễn phí D. Quét virus qua mạng
+84. Cổng mặc định của giao thức SSH là: A. 80 B. 21 C. 22 D. 23
+85. "Biometric Authentication" là xác thực dựa trên: A. Mật khẩu ký tự B. Thẻ thông minh C. Đặc điểm sinh trắc học (vân tay, khuôn mặt, võng mạc) D. Mã số gửi qua SMS
+86. Một cuộc tấn công "Insider Threat" là tấn công xuất phát từ: A. Một quốc gia khác B. Một người bên trong tổ chức (nhân viên, đối tác) C. Một robot tự động D. Một hacker tình cờ thấy lỗ hổng trên web
+87. Hệ thống DLP (Data Loss Prevention) dùng để: A. Tăng tốc độ copy dữ liệu B. Ngăn chặn việc rò rỉ dữ liệu nhạy cảm ra bên ngoài tổ chức C. Khôi phục dữ liệu đã bị xóa D. Sao lưu dữ liệu lên đám mây
+88. "Security Audit" (Kiểm toán an ninh) là quá trình: A. Mua thêm thiết bị mới B. Đánh giá độc lập các biện pháp kiểm soát an ninh hiện có C. Viết mã cho ứng dụng D. Quảng bá sản phẩm bảo mật
+89. Việc sử dụng Proxy Server giúp: A. Thay đổi bàn phím máy tính B. Kiểm soát truy cập web và ẩn địa chỉ IP nội bộ C. Làm cho internet nhanh gấp 10 lần D. Diệt virus trong email
+90. Tại sao cần cập nhật Firmware cho các thiết bị mạng (Router, Switch)? A. Để thiết bị trông mới hơn B. Để vá các lỗ hổng bảo mật cấp thấp và cải thiện hiệu năng C. Để tốn ít điện hơn D. Cập nhật Firmware là không cần thiết
+91. BYOD (Bring Your Own Device) gây ra thách thức bảo mật vì: A. Thiết bị cá nhân thường đắt tiền hơn B. Khó kiểm soát an ninh trên các thiết bị không do công ty quản lý C. Nhân viên sẽ lười làm việc hơn D. Tốn dung lượng wifi của công ty
+92. Để đảm bảo an toàn cho mạng Wi-Fi công ty, nên dùng chuẩn mã hóa: A. WEP (đã lỗi thời) B. WPA C. WPA2 hoặc WPA3 D. Không cần mã hóa để nhân viên dễ dùng
+93. Air-gapping là biện pháp bảo mật bằng cách: A. Đặt máy tính trong lồng sắt B. Cách ly hoàn toàn máy tính/mạng khỏi mạng internet và các mạng không an toàn khác C. Cho máy tính tiếp xúc với nhiều không khí D. Sử dụng quạt tản nhiệt mạnh
+94. "Physical Token" (như USB Token) được dùng để: A. Lưu trữ phim ảnh B. Chứa khóa bí mật hoặc mã xác thực để đăng nhập an toàn C. Thay thế cho chuột máy tính D. Kết nối wifi
+95. Đâu là một hành vi an toàn khi sử dụng máy tính công cộng? A. Chọn "Ghi nhớ mật khẩu" trên trình duyệt B. Sử dụng chế độ ẩn danh và đăng xuất hoàn toàn sau khi dùng C. Để máy tự đăng nhập lần sau cho tiện D. Lưu file quan trọng lên màn hình Desktop
+96. Một mật khẩu được coi là mạnh khi: A. Là tên ngày sinh của mình B. Có độ dài lớn (ít nhất 8-12 ký tự), bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt C. Là chuỗi "12345678" D. Giống hệt với tên đăng nhập
+97. SQL Injection nhắm vào: A. Người dùng cuối B. Cơ sở dữ liệu của ứng dụng C. Card màn hình D. Chuột và bàn phím
+98. Chức năng của "Digital Signature" là đảm bảo: A. Người nhận không thể đọc được thư B. Người gửi không thể chối bỏ việc đã gửi thư và thư không bị sửa đổi C. Thư sẽ được gửi đi nhanh hơn D. Thư sẽ tự động xóa sau khi đọc
+99. Công nghệ "Sandbox" dùng để: A. Chạy các phần mềm nghi ngờ trong môi trường cô lập để tránh gây hại cho hệ thống thật B. Một loại trò chơi điện tử C. Lưu trữ dữ liệu lâu dài D. Làm sạch phần cứng máy tính
+100. Mục tiêu cuối cùng của An toàn thông tin là bảo vệ: A. Lợi nhuận của công ty phần mềm B. Tài sản thông tin của tổ chức và cá nhân (Tính CIA) C. Chỉ bảo vệ máy tính khỏi bị trộm D. Tốc độ kết nối Internet`;
+
+    // Mảng đáp án đúng
+    const verifiedAnswers = [
+        1, 2, 1, 2, 1, 0, 2, 1, 1, 1, 1, 2, 1, 1, 2, 2, 1, 1, 1, 2, // Ch1
+        2, 1, 1, 1, 2, 0, 1, 1, 0, 2, 2, 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 1, // Ch2
+        2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, // Ch3
+        0, 1, 0, 2, 1, 1, 1, 0, 2, 2, 0, 1, 1, 1, 1, 2, 1, 0, 1, 2, 2, 0, 1, 1, 0, 1, 1, 0, 2, 1, 0, 2, 2, 1, 1, 0, 0, 1, 2, 1, 1, 2, 1, 1, 0, 2, 1, 0, 1, 3, // Ch4
+        1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 2, 1, 0, 2, 2, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 0, 1, 0, 1, 0, 0, 1, 2, 1, 1, 1, // Ch5
+        1, 0, 0, 1, 1, 1, 1, 0, 1, 2, 1, 1, 2, 1, 0, 2, 2, 1, 0, 1, 1, 2, 1, 1, 1, 2, 1, 2, 0, 1, 1, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 1  // Ch6
+    ];
+
+    // Từ điển giải thích chi tiết (Ánh xạ theo index của mảng câu hỏi 0 -> 249)
+    // Nếu bạn muốn sửa giải thích cho câu nào, chỉ cần định nghĩa vào đây
+    const specificExplanations = {
+        0: "Mô hình CIA (Confidentiality, Integrity, Availability) là 3 trụ cột không thể tách rời để cấu thành nên một hệ thống thông tin an toàn.",
+        1: "VPN mã hóa toàn bộ dữ liệu trên đường truyền thành các gói tin không thể đọc được bởi người ngoài, qua đó đảm bảo tuyệt đối tính bí mật.",
+        2: "Tính sẵn dùng đòi hỏi hệ thống phải hoạt động phục vụ người dùng. Uptime/Downtime chính là chỉ số đo lường hiệu quả nhất.",
+        3: "Tường lửa (Firewall) và IDS là các hàng rào kỹ thuật đặt tại Network Layer nhằm ngăn chặn sự xâm nhập từ mạng lưới bên ngoài.",
+        4: "Bài toán lý thuyết số như số nguyên tố cực lớn chính là nền tảng cốt lõi của các hệ mã hóa công khai phức tạp như RSA."
+    };
+
+    function parseQuizText(text) {
+        let formatted = text.replace(/([^\n])\s+(A\.)/g, '$1\n$2')
+                            .replace(/([^\n])\s+(B\.)/g, '$1\n$2')
+                            .replace(/([^\n])\s+(C\.)/g, '$1\n$2')
+                            .replace(/([^\n])\s+(D\.)/g, '$1\n$2');
+
+        const lines = formatted.split('\n').map(l => l.trim()).filter(l => l);
+        const quizList = [];
+        let currentQ = null;
+
+        lines.forEach(line => {
+            if (/^(Câu\s*\d+:|\d+\.)/i.test(line)) {
+                if (currentQ && currentQ.options.length >= 2) quizList.push(currentQ);
+                currentQ = { question: line, options: [] };
+            } else if (/^[A-D][\.\)]/i.test(line)) {
+                if (currentQ) currentQ.options.push(line);
+            } else {
+                if (currentQ && currentQ.options.length === 0) {
+                    currentQ.question += ' ' + line;
+                }
+            }
+        });
+        if (currentQ && currentQ.options.length >= 2) quizList.push(currentQ);
+        
+        quizList.forEach((q, index) => {
+            q.answer = verifiedAnswers[index] !== undefined ? verifiedAnswers[index] : 0;
+        });
+
+        return quizList;
+    }
+
+    const quizData = parseQuizText(rawText);
+    let currentQuestionIndex = 0;
+
+    const questionEl = document.getElementById('question');
+    const optionsEl = document.getElementById('options');
+    const feedbackEl = document.getElementById('feedback');
+    const explanationEl = document.getElementById('explanation');
+    const nextBtn = document.getElementById('next-btn');
+    const progressEl = document.getElementById('progress');
+
+    function loadQuestion() {
+        feedbackEl.innerHTML = '';
+        explanationEl.style.display = 'none';
+        nextBtn.style.display = 'none';
+        optionsEl.innerHTML = '';
+        
+        const currentQuiz = quizData[currentQuestionIndex];
+        progressEl.innerText = `Câu hỏi ${currentQuestionIndex + 1} / ${quizData.length}`;
+        questionEl.innerText = currentQuiz.question;
+
+        currentQuiz.options.forEach((optionText, index) => {
+            const button = document.createElement('button');
+            button.innerText = optionText;
+            button.classList.add('option-btn');
+            button.addEventListener('click', () => selectAnswer(index, button));
+            optionsEl.appendChild(button);
+        });
+    }
+    function jumpToQuestion() {
+        const inputVal = document.getElementById('start-q').value;
+        const targetIndex = parseInt(inputVal) - 1; // Mảng bắt đầu từ 0 nên phải trừ 1
+
+        // Kiểm tra xem số nhập vào có hợp lệ không
+        if (!isNaN(targetIndex) && targetIndex >= 0 && targetIndex < quizData.length) {
+            currentQuestionIndex = targetIndex;
+            loadQuestion(); // Tải lại câu hỏi mới
+        } else {
+            alert(`Vui lòng nhập một số hợp lệ từ 1 đến ${quizData.length}`);
+            document.getElementById('start-q').value = currentQuestionIndex + 1;
+        }
+    }
+
+    function selectAnswer(selectedIndex, buttonElement) {
+        const currentQuiz = quizData[currentQuestionIndex];
+        
+        if (selectedIndex === currentQuiz.answer) {
+            buttonElement.classList.add('correct');
+            feedbackEl.innerText = '✅ Chính xác!';
+            feedbackEl.style.color = '#28a745';
+            
+            // Xử lý tạo giải thích
+            const correctText = currentQuiz.options[currentQuiz.answer].replace(/^[A-D]\.\s*/, '');
+            let explainText = specificExplanations[currentQuestionIndex];
+            
+            // Nếu không có trong mảng specific, dùng Fallback động
+            if (!explainText) {
+                explainText = `Theo lý thuyết An toàn thông tin, <b>"${correctText}"</b> là phương pháp/kiến thức chuẩn xác nhất để giải quyết vấn đề được nêu trong câu hỏi.`;
+            }
+            
+            explanationEl.innerHTML = `<strong>💡 Giải thích nhanh:</strong><br>${explainText}`;
+            explanationEl.style.display = 'block';
+            
+            Array.from(optionsEl.children).forEach(btn => btn.style.pointerEvents = 'none');
+            nextBtn.style.display = 'block';
+        } else {
+            buttonElement.classList.add('wrong');
+            feedbackEl.innerText = '❌ Bạn đã chọn sai đáp án. Xin mời chọn lại!';
+            feedbackEl.style.color = '#dc3545';
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            progressEl.innerText = "Hoàn thành toàn bộ bài thi!";
+            questionEl.innerText = "🎉 Tuyệt vời! Bạn đã hoàn thành 250 câu hỏi ôn tập An toàn thông tin.";
+            optionsEl.innerHTML = '';
+            feedbackEl.innerHTML = '';
+            explanationEl.style.display = 'none';
+            nextBtn.style.display = 'none';
+            
+            const restartBtn = document.createElement('button');
+            restartBtn.innerText = "Làm lại từ đầu";
+            restartBtn.className = "next-btn";
+            restartBtn.style.display = "block";
+            restartBtn.onclick = () => {
+                currentQuestionIndex = 0;
+                loadQuestion();
+            };
+            optionsEl.appendChild(restartBtn);
+        }
+    }
+
+    if(quizData.length > 0) {
+        loadQuestion();
+    } else {
+        questionEl.innerText = "Lỗi tải dữ liệu. Vui lòng kiểm tra lại mã nguồn!";
+    }
+</script>
+
+</body>
+</html>
